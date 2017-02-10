@@ -128,7 +128,6 @@ if __name__ == "__main__":
 
         for t in range(1000):
             env.render()
-            print(observation)
 
             # decide next action
             action = agent.act(state)
