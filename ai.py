@@ -7,7 +7,7 @@ from keras.layers import Dense
 from keras.optimizers import RMSprop
 
 
-episodes = 5
+episodes = 100
 
 # Deep Q Learning Agent Class
 # ========================================================================
@@ -29,10 +29,10 @@ class DeepQLearningAgent:
    # build the neural network model
     def _build_model(self):
         model = Sequential([
-            Dense(128, input_dim=4, activation='tanh'),
-            Dense(128, activation='tanh'),
-            Dense(128, activation='tanh'),
-            Dense(3, activation='linear'),
+            Dense(64, input_dim=2, activation='tanh', init='he_uniform'),
+            Dense(128, activation='tanh', init='he_uniform'),
+            Dense(128, activation='tanh', init='he_uniform'),
+            Dense(3, activation='linear', init='he_uniform'),
         ])
 
         # loss='mse' means "minimize the mean_squared_error
@@ -47,7 +47,7 @@ class DeepQLearningAgent:
 
     # store experiences learned from training in memory
     def remember(self, state, action, reward, next_state):
-        self.memory,append((state, action, reward, next_state))
+        self.memory.append((state, action, reward, next_state))
 
 
 
@@ -123,10 +123,10 @@ if __name__ == "__main__":
     for i_episode in range(episodes):
         # observation stores the state of the scenario
         state = env.reset()
-        # state = np.reshape(state, [1, 4])
+        state = np.reshape(state, [1, 2])
+        maxPosition = state[0][0]
 
-
-        for t in range(1000):
+        for t in range(10000):
             env.render()
 
             # decide next action
@@ -134,11 +134,12 @@ if __name__ == "__main__":
 
             # advance scenario to next frame
             next_state, reward, done, info = env.step(action)
-            # next_state = np.reshape(next_state, [1, 4])
+            next_state = np.reshape(next_state, [1, 2])
 
-            # reward agent 1 for every frame it lived (default 1)
-            # punish -100 for dying
-            reward = -100 if done else reward
+            position = next_state[0][0]
+
+            # reward agent for how far up the right slope it got
+            reward = 100 if done else position
 
             # remember the previous experience
             agent.remember(state, action, reward, next_state)
@@ -146,11 +147,15 @@ if __name__ == "__main__":
             # update current state for next frame
             state = copy.deepcopy(next_state)
 
+            # update max position
+            if (position > maxPosition):
+                maxPosition = position
+
             # when the game ends
             if done:
-                print("Episode: {}/{}, Score: {}".format(i_episode, episodes, t))
+                print("Episode: {}/{}, Score: {}".format(i_episode, episodes, maxPosition))
                 break
 
         # train the agent with the experience of the episode
-        agent.replay(128)
+        agent.replay(32)
 
