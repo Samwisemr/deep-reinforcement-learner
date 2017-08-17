@@ -12,6 +12,7 @@ episodes = 100
 # Deep Q Learning Agent Class
 # ========================================================================
 class DeepQLearningAgent:
+
     def __init__(self, env):
         self.env = env                      # scenario
         self.memory = deque(maxlen=10000)   # stores agent's experiences
@@ -22,11 +23,7 @@ class DeepQLearningAgent:
         self.learning_rate = 0.0001         # rate of learning per iteration
         self._build_model()                 # build the neural network model
 
-
-
-
-
-   # build the neural network model
+    # build the neural network model
     def _build_model(self):
         model = Sequential([
             Dense(64, input_dim=2, activation='tanh', init='he_uniform'),
@@ -41,19 +38,9 @@ class DeepQLearningAgent:
 
         self.model = model
 
-
-
-
-
     # store experiences learned from training in memory
     def remember(self, state, action, reward, next_state):
         self.memory.append((state, action, reward, next_state))
-
-
-
-
-
-
 
     # retrain network with experiences from memory
     def replay(self, batch_size):
@@ -87,12 +74,6 @@ class DeepQLearningAgent:
             if self.epsilon > self.epsilon_min:
                 self.epsilon += self.epsilon_decay
 
-
-
-
-
-
-
     # decide how to act
     def act(self, state):
         # act randomly at first to test different approaches
@@ -104,10 +85,6 @@ class DeepQLearningAgent:
 
         # pick action that correlates to maximum reward
         return np.argmax(act_reward_values[0])
-
-
-
-
 
 
 if __name__ == "__main__":
