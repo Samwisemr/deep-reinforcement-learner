@@ -15,6 +15,8 @@ class DeepQLearningAgent:
 
     def __init__(self, env):
         self.env = env                      # scenario
+        self.state_size = env.observation_space.shape[0]
+        self.action_size = env.action_space.n
         self.memory = deque(maxlen=10000)   # stores agent's experiences
         self.gamma = 0.9                    # decay rate
         self.epsilon = 1                    # exploration
@@ -26,10 +28,10 @@ class DeepQLearningAgent:
     # build the neural network model
     def _build_model(self):
         model = Sequential([
-            Dense(64, input_dim=2, activation='tanh', init='he_uniform'),
-            Dense(128, activation='tanh', init='he_uniform'),
-            Dense(128, activation='tanh', init='he_uniform'),
-            Dense(3, activation='linear', init='he_uniform'),
+            Dense(64, kernel_initializer='he_uniform', activation='tanh', input_dim=self.state_size),
+            Dense(128, kernel_initializer='he_uniform', activation='tanh'),
+            Dense(128, kernel_initializer='he_uniform', activation='tanh'),
+            Dense(self.action_size, kernel_initializer='he_uniform', activation='linear'),
         ])
 
         # loss='mse' means "minimize the mean_squared_error
@@ -94,6 +96,7 @@ if __name__ == "__main__":
 
     # initialize gym environment and the agent
     env = gym.make('MountainCar-v0')
+    print("Action size = {}".format(env.action_space.n))
     agent = DeepQLearningAgent(env)
 
     # per number of times we want to run the scenario
