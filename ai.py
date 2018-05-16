@@ -26,8 +26,8 @@ class DeepQLearningAgent:
     # build the neural network model
     def _build_model(self):
         model = Sequential([
-            Dense(48, activation='relu', input_dim=self.state_size),
-            Dense(48, activation='relu'),
+            Dense(24, activation='relu', input_dim=self.state_size),
+            Dense(24, activation='relu'),
             Dense(self.action_size, activation='linear'),
         ])
 
