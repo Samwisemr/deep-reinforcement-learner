@@ -79,9 +79,11 @@ class DeepQLearningAgent:
             target = reward
             if not done:
                 target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
-                target_f = self.model.predict(state)
+
+            target_f = self.model.predict(state)
             target_f[0][action] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
+
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
@@ -150,7 +152,7 @@ if __name__ == "__main__":
 
             # when the game ends
             if done:
-                print("Episode: {}/{}, Score: {}, e: {}"
+                print("Episode: {}/{}, Score: {:.2}, e: {:.2}"
                         .format(i_episode, episodes, maxPosition, agent.epsilon))
                 break
 
