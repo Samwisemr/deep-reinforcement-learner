@@ -4,10 +4,7 @@ import numpy as np
 from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.optimizers import RMSprop
-
-
-episodes = 100
+from keras.optimizers import Adam
 
 # Deep Q Learning Agent Class
 # ========================================================================
@@ -18,25 +15,24 @@ class DeepQLearningAgent:
         self.state_size = env.observation_space.shape[0]
         self.action_size = env.action_space.n
         self.memory = deque(maxlen=10000)   # stores agent's experiences
-        self.gamma = 0.9                    # decay rate
-        self.epsilon = 1                    # exploration
+        self.gamma = 0.95                   # decay rate
+        self.epsilon = 1.0                  # exploration
         self.epsilon_decay = .995           # decrease exploration rate
         self.epsilon_min = 0.1              # explore at least this much
-        self.learning_rate = 0.0001         # rate of learning per iteration
+        self.learning_rate = 0.001          # rate of learning per iteration
         self._build_model()                 # build the neural network model
 
     # build the neural network model
     def _build_model(self):
         model = Sequential([
-            Dense(64, kernel_initializer='he_uniform', activation='tanh', input_dim=self.state_size),
-            Dense(128, kernel_initializer='he_uniform', activation='tanh'),
-            Dense(128, kernel_initializer='he_uniform', activation='tanh'),
-            Dense(self.action_size, kernel_initializer='he_uniform', activation='linear'),
+            Dense(48, activation='relu', input_dim=self.state_size),
+            Dense(48, activation='relu'),
+            Dense(self.action_size, activation='linear'),
         ])
 
         # loss='mse' means "minimize the mean_squared_error
         model.compile(loss='mse',
-                optimizer=RMSprop(lr=self.learning_rate))
+                optimizer=Adam(lr=self.learning_rate))
 
         self.model = model
 
@@ -70,7 +66,7 @@ class DeepQLearningAgent:
             # train the neural network with the state and target_f
             #   feeds state and target_f info to model ==> makes neural net to predict
             #   the reward value (target_f) from a certain state
-            self.model.fit(state, target_f, nb_epoch=1, verbose=0)
+            self.model.fit(state, target_f, epochs=1, verbose=0)
 
             # decay epsilon if we've reached our minimum explorations
             if self.epsilon > self.epsilon_min:
@@ -91,16 +87,21 @@ class DeepQLearningAgent:
 
 if __name__ == "__main__":
 
+    EPISODES = 100
+    np.random.seed(7)
+    done = False
+
     # main loops
     # ========================================================================
 
     # initialize gym environment and the agent
     env = gym.make('MountainCar-v0')
+    print("State size = {}".format(env.observation_space.shape[0]))
     print("Action size = {}".format(env.action_space.n))
     agent = DeepQLearningAgent(env)
 
     # per number of times we want to run the scenario
-    for i_episode in range(episodes):
+    for i_episode in range(EPISODES):
         # observation stores the state of the scenario
         state = env.reset()
         state = np.reshape(state, [1, 2])
@@ -133,7 +134,7 @@ if __name__ == "__main__":
 
             # when the game ends
             if done:
-                print("Episode: {}/{}, Score: {}".format(i_episode, episodes, maxPosition))
+                print("Episode: {}/{}, Score: {}".format(i_episode, EPISODES, maxPosition))
                 break
 
         # train the agent with the experience of the episode
